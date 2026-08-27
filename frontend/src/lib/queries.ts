@@ -5,10 +5,12 @@ import {
 } from '@tanstack/react-query'
 import { api } from './api'
 import type {
+  Invitation,
   Label,
   Member,
   Priority,
   Project,
+  Role,
   Status,
   Task,
   User,
@@ -21,6 +23,7 @@ export const qk = {
   labels: (id: string) => ['projects', id, 'labels'] as const,
   tasks: (id: string) => ['projects', id, 'tasks'] as const,
   members: (id: string) => ['projects', id, 'members'] as const,
+  invitations: (id: string) => ['projects', id, 'invitations'] as const,
 }
 
 // --- Projects ---
@@ -190,6 +193,36 @@ export function useRemoveMember(projectId: string) {
     mutationFn: async (userId: string) =>
       api.delete(`/projects/${projectId}/members/${userId}`),
     onSuccess: () => qc.invalidateQueries({ queryKey: qk.members(projectId) }),
+  })
+}
+
+// --- Invitations ---
+export function useInvitations(projectId: string) {
+  return useQuery({
+    queryKey: qk.invitations(projectId),
+    queryFn: async () =>
+      (await api.get<Invitation[]>(`/projects/${projectId}/invitations`)).data,
+  })
+}
+
+export function useCreateInvitation(projectId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (body: { email: string; role?: Role }) =>
+      (await api.post<Invitation>(`/projects/${projectId}/invitations`, body)).data,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: qk.invitations(projectId) })
+      qc.invalidateQueries({ queryKey: qk.members(projectId) })
+    },
+  })
+}
+
+export function useCancelInvitation(projectId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (invitationId: string) =>
+      api.delete(`/projects/${projectId}/invitations/${invitationId}`),
+    onSuccess: () => qc.invalidateQueries({ queryKey: qk.invitations(projectId) }),
   })
 }
 

@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes import (
     auth,
+    invitations,
     labels,
     members,
     projects,
@@ -37,6 +38,7 @@ for router in (
     statuses.router,
     labels.router,
     tasks.router,
+    invitations.router,
 ):
     app.include_router(router, prefix="/api")
 

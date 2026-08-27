@@ -30,6 +30,15 @@ export interface Member {
   user: User
 }
 
+export interface Invitation {
+  id: string
+  project_id: string
+  email: string
+  role: Role
+  status: 'pending' | 'accepted'
+  created_at: string
+}
+
 export interface Status {
   id: string
   project_id: string

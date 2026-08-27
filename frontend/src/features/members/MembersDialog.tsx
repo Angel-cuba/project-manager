@@ -1,9 +1,12 @@
-import { useEffect, useState } from 'react'
+import { type FormEvent, useEffect, useState } from 'react'
 import { Button, Modal, TextInput } from '../../components/ui'
 import { errorMessage } from '../../lib/errors'
 import {
   searchUsers,
   useAddMember,
+  useCancelInvitation,
+  useCreateInvitation,
+  useInvitations,
   useMembers,
   useRemoveMember,
 } from '../../lib/queries'
@@ -19,11 +22,16 @@ export function MembersDialog({
   onClose: () => void
 }) {
   const { data: members } = useMembers(projectId)
+  const { data: invitations } = useInvitations(projectId)
   const addMember = useAddMember(projectId)
   const removeMember = useRemoveMember(projectId)
+  const createInvitation = useCreateInvitation(projectId)
+  const cancelInvitation = useCancelInvitation(projectId)
   const [term, setTerm] = useState('')
   const [results, setResults] = useState<User[]>([])
   const [error, setError] = useState<string | null>(null)
+  const [inviteEmail, setInviteEmail] = useState('')
+  const [inviteError, setInviteError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!isOwner) return
@@ -43,6 +51,21 @@ export function MembersDialog({
       setError(errorMessage(err))
     }
   }
+
+  async function invite(e: FormEvent) {
+    e.preventDefault()
+    const email = inviteEmail.trim()
+    if (!email) return
+    setInviteError(null)
+    try {
+      await createInvitation.mutateAsync({ email })
+      setInviteEmail('')
+    } catch (err) {
+      setInviteError(errorMessage(err))
+    }
+  }
+
+  const pendingInvitations = invitations?.filter((i) => i.status === 'pending') ?? []
 
   return (
     <Modal title="Miembros del proyecto" onClose={onClose}>
@@ -74,6 +97,49 @@ export function MembersDialog({
             </li>
           ))}
         </ul>
+
+        {isOwner && (
+          <div className="border-t border-slate-200 pt-3">
+            <p className="mb-2 text-xs font-medium text-slate-500">Invitar por email</p>
+            {inviteError && <p className="mb-2 text-sm text-red-600">{inviteError}</p>}
+            <form onSubmit={invite} className="flex items-center gap-2">
+              <TextInput
+                type="email"
+                placeholder="correo@ejemplo.com"
+                value={inviteEmail}
+                onChange={(e) => setInviteEmail(e.target.value)}
+              />
+              <Button type="submit" disabled={createInvitation.isPending}>
+                Invitar
+              </Button>
+            </form>
+
+            {pendingInvitations.length > 0 && (
+              <div className="mt-3">
+                <p className="mb-2 text-xs font-medium text-slate-500">
+                  Invitaciones pendientes
+                </p>
+                <ul className="space-y-1">
+                  {pendingInvitations.map((inv) => (
+                    <li
+                      key={inv.id}
+                      className="flex items-center justify-between rounded-md bg-slate-50 px-3 py-1.5"
+                    >
+                      <span className="text-sm text-slate-700">{inv.email}</span>
+                      <Button
+                        variant="ghost"
+                        className="text-red-600"
+                        onClick={() => cancelInvitation.mutate(inv.id)}
+                      >
+                        ✕
+                      </Button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
 
         {isOwner && (
           <div className="border-t border-slate-200 pt-3">

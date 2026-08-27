@@ -9,6 +9,8 @@ from app.core.security import (
     hash_password,
     verify_password,
 )
+from app.models.invitation import STATUS_ACCEPTED, STATUS_PENDING, Invitation
+from app.models.project import ProjectMember
 from app.models.user import User
 from app.schemas.auth import LoginRequest, RefreshRequest, Token
 from app.schemas.user import UserCreate, UserOut
@@ -35,6 +37,32 @@ def register(data: UserCreate, db: DbSession) -> Token:
         hashed_password=hash_password(data.password),
     )
     db.add(user)
+    db.flush()
+
+    # Auto-accept any pending invitations addressed to this email.
+    pending = db.scalars(
+        select(Invitation).where(
+            Invitation.email == user.email,
+            Invitation.status == STATUS_PENDING,
+        )
+    ).all()
+    for invitation in pending:
+        already_member = db.scalar(
+            select(ProjectMember).where(
+                ProjectMember.project_id == invitation.project_id,
+                ProjectMember.user_id == user.id,
+            )
+        )
+        if already_member is None:
+            db.add(
+                ProjectMember(
+                    project_id=invitation.project_id,
+                    user_id=user.id,
+                    role=invitation.role,
+                )
+            )
+        invitation.status = STATUS_ACCEPTED
+
     db.commit()
     db.refresh(user)
     return _issue_tokens(user)
