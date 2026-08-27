@@ -1,0 +1,24 @@
+# Env / secrets
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+
+# Node
+node_modules/
+dist/
+
+# AI tooling
+.qodo/
+.cursor/
+.aider*
+
+# Editors / OS
+.idea/
+.vscode/
+.DS_Store

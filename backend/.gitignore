@@ -1,0 +1,27 @@
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# SQLite (tests)
+*.db
+*.sqlite3
+
+# AI tooling
+.qodo/
+.cursor/
+.aider*
+
+# Editors / IDEs
+.idea/
+.vscode/
+.DS_Store
