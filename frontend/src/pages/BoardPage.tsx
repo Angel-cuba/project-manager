@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom'
 import { Button } from '../components/ui'
 import { BoardSettingsDialog } from '../features/board/BoardSettingsDialog'
 import { KanbanBoard } from '../features/board/KanbanBoard'
+import { TaskListView } from '../features/board/TaskListView'
 import { TaskModal } from '../features/board/TaskModal'
 import { useProjectSocket } from '../features/board/useProjectSocket'
 import { MembersDialog } from '../features/members/MembersDialog'
@@ -28,6 +29,7 @@ export function BoardPage() {
   const [creating, setCreating] = useState(false)
   const [showMembers, setShowMembers] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
+  const [view, setView] = useState<'board' | 'list'>('board')
 
   const isOwner = project?.role === 'owner'
   const ready = statuses && tasks && members && labels
@@ -54,6 +56,28 @@ export function BoardPage() {
             {connected ? 'En vivo' : 'Desconectado'}
           </span>
           <div className="ml-auto flex items-center gap-2">
+            <div className="flex rounded-md border border-slate-300 p-0.5">
+              <button
+                onClick={() => setView('board')}
+                className={`rounded px-3 py-1 text-sm font-medium transition ${
+                  view === 'board'
+                    ? 'bg-indigo-600 text-white'
+                    : 'text-slate-600 hover:bg-slate-100'
+                }`}
+              >
+                Tablero
+              </button>
+              <button
+                onClick={() => setView('list')}
+                className={`rounded px-3 py-1 text-sm font-medium transition ${
+                  view === 'list'
+                    ? 'bg-indigo-600 text-white'
+                    : 'text-slate-600 hover:bg-slate-100'
+                }`}
+              >
+                Lista
+              </button>
+            </div>
             <Button variant="secondary" onClick={() => setShowMembers(true)}>
               Miembros
             </Button>
@@ -74,10 +98,17 @@ export function BoardPage() {
           <div className="rounded-xl border border-dashed border-slate-300 bg-white p-10 text-center text-slate-500">
             Crea un estado en Ajustes para empezar.
           </div>
-        ) : (
+        ) : view === 'board' ? (
           <KanbanBoard
             statuses={statuses}
             tasks={tasks}
+            onTaskClick={(t) => setEditingTask(t)}
+          />
+        ) : (
+          <TaskListView
+            statuses={statuses}
+            tasks={tasks}
+            members={members}
             onTaskClick={(t) => setEditingTask(t)}
           />
         )}
