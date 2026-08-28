@@ -16,6 +16,8 @@ Gestor de proyectos de software **colaborativo** con tablero **Kanban**, estados
 
 ![Demo — drag & drop en el tablero Kanban](docs/screenshots/board-dnd.gif)
 
+> 📄 **Project brief (el cómo y el porqué):** [ver en Notion](https://app.notion.com/p/3caf1b1d5365812c8b1ad46f9143e4c6) — proyecto de exploración técnica para evaluar el stack.
+
 - **Backend** (`backend/`): Python · FastAPI · SQLAlchemy 2.0 · PostgreSQL · Alembic, gestionado con **uv**.
 - **Frontend** (`frontend/`): Vite · React · TypeScript · TailwindCSS · dnd-kit · TanStack Query.
 
