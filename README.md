@@ -14,7 +14,7 @@
 Gestor de proyectos de software **colaborativo** con tablero **Kanban**, estados
 **dinámicos por proyecto** y actualizaciones en **tiempo real** por WebSocket.
 
-![Tablero Kanban](docs/screenshots/board-kanban.png)
+![Demo — drag & drop en el tablero Kanban](docs/screenshots/board-dnd.gif)
 
 - **Backend** (`backend/`): Python · FastAPI · SQLAlchemy 2.0 · PostgreSQL · Alembic, gestionado con **uv**.
 - **Frontend** (`frontend/`): Vite · React · TypeScript · TailwindCSS · dnd-kit · TanStack Query.
